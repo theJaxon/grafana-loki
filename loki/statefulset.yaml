@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: grafana-loki
+spec:
+  serviceName: grafana-loki
+  template:
+    spec:
+      volumes:
+      - name: grafana-loki-config
+        configMap:
+          name: grafana-loki-config
+
+      containers:
+      - name: grafana-loki
+        args:
+        - -config.file=/mnt/config/loki-config.yaml
+        image: grafana/loki:2.8.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3100
+          protocol: TCP
+        volumeMounts:
+        - name: grafana-loki-config
+          mountPath: /mnt/config
