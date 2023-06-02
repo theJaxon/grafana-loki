@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonLabels:
+  app: promtail
+resources:
+- deployment.yaml
+
+configMapGenerator:
+- name: promtail-config
+  files:
+  - config/promtail.yaml

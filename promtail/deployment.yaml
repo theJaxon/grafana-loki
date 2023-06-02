@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: counter
+  labels:
+    app: counter
+spec:
+  replicas: 1
+  template:
+    spec:
+      volumes:
+      - name: varlog
+        emptyDir: {}
+      - name: promtail-config
+        configMap:
+          name: promtail-config
+          
+      containers:
+      - name: promtail
+        image: grafana/promtail
+        args: 
+        - -config.file=/etc/promtail/promtail.yaml
+        volumeMounts:
+        - name: promtail-config
+          mountPath: /etc/promtail
+        - name: varlog
+          mountPath: /var/log
+
+      - image: busybox:1.28
+        name: busybox
+        args:
+        - /bin/sh
+        - -c
+        - >
+          i=0;
+          while true;
+          do
+            echo "$i: $(date)" >> /var/log/1.log;
+            echo "$(date) INFO $i" >> /var/log/2.log;
+            i=$((i+1));
+            sleep 30;
+          done      
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
